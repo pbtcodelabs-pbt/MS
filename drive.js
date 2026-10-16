@@ -169,7 +169,7 @@
       if (!meta.email) await whoAmI();
       await ensureFolder();
       const meds = host().snapshot();
-      const content = JSON.stringify({ app: 'MedicineShelf', version: host().version, savedAt: new Date().toISOString(), meds });
+      const content = JSON.stringify({ app: 'MedicineShelf', version: host().version, savedAt: new Date().toISOString(), meds, rx: host().snapshotRx ? host().snapshotRx() : [] });
       let latestId = meta.latestId;
       if (!latestId) {
         const q = encodeURIComponent(`name='${LATEST_NAME}' and '${meta.folderId}' in parents and trashed=false`);
@@ -246,7 +246,7 @@
       const j = await (await api(`${DRIVE}/${id}?alt=media`)).json();
       const arr = Array.isArray(j) ? j : j.meds;
       if (!Array.isArray(arr)) throw new Error('bad');
-      host().replace(arr);
+      host().replace(arr, Array.isArray(j.rx) ? j.rx : undefined);
       meta.lastDrive = new Date().toISOString(); meta.pending = false; meta.lastCount = arr.length; saveMeta();
       host().closeBox('driveBox'); host().closeBox('menuBox'); render();
       toast(`${arr.length} دوائیاں واپس آ گئیں ✔ تصویریں آ رہی ہیں…`);
