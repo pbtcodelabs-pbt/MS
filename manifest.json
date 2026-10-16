@@ -1,0 +1,12 @@
+{
+  "name": "میڈیسن شیلف",
+  "short_name": "میڈیسن شیلف",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "dir": "rtl",
+  "lang": "ur",
+  "background_color": "#f0fdfa",
+  "theme_color": "#0f766e",
+  "icons": [{ "src": "icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }]
+}
