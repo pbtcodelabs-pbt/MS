@@ -350,6 +350,44 @@
   .ibtn.share { background: linear-gradient(180deg, #bbf7d0, #4ade80); --edge: #15803d; }
   .ibtn.edit  { background: linear-gradient(180deg, #a5f3fc, #22d3ee); --edge: #0e7490; }
   .ibtn.del   { background: linear-gradient(180deg, #fecdd3, #fb7185); --edge: #be123c; }
+
+  /* ---------- کارڈ پر تصویر ---------- */
+  .card { display: flex; align-items: stretch; gap: 10px; }
+  .cmain { flex: 1; min-width: 0; }
+  .cphoto {
+    flex: none; width: 32%; max-width: 150px; min-height: 120px; border-radius: 16px; overflow: hidden; cursor: pointer;
+    display: flex; align-items: center; justify-content: center; text-align: center;
+    background: linear-gradient(160deg, #f0fdfa, #ede9fe); border: 2px dashed #a5b4fc;
+    box-shadow: inset 0 2px 6px rgba(0,0,0,.06);
+  }
+  .cphoto.has { border: 0; background: #fff; box-shadow: 0 4px 0 rgba(99,102,241,.25), 0 6px 12px rgba(0,0,0,.15); }
+  .cphoto img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .cphoto .padd { color: #6d28d9; font-size: 15px; line-height: 1.6; opacity: .75; }
+  .cphoto .pload { font-size: 22px; }
+  .card.sel .cphoto { pointer-events: none; }
+  .fphoto { display: flex; gap: 12px; align-items: center; }
+  .fpbox {
+    width: 120px; height: 120px; flex: none; border-radius: 22px; overflow: hidden; cursor: pointer;
+    display: flex; align-items: center; justify-content: center; text-align: center; color: #6d28d9; font-size: 15px; line-height: 1.6;
+    background: linear-gradient(160deg, #f0fdfa, #ede9fe); border: 2.5px dashed #a5b4fc;
+  }
+  .fpbox.has { border: 0; box-shadow: 0 4px 0 rgba(99,102,241,.25), 0 8px 14px rgba(0,0,0,.15); }
+  .fpbox img { width: 100%; height: 100%; object-fit: cover; }
+  .fpbtns { display: flex; flex-direction: column; gap: 10px; flex: 1; }
+  .fpbtns .btn { border-radius: 30px; padding: 6px 12px; }
+  .fpbtns .btn[hidden] { display: none; }
+  .viewer {
+    position: fixed; inset: 0; z-index: 40; background: rgba(15,23,42,.94); display: none;
+    flex-direction: column; align-items: center; justify-content: center; padding: 16px; gap: 10px;
+  }
+  .viewer.show { display: flex; }
+  .viewer img { max-width: 100%; max-height: 72vh; border-radius: 18px; box-shadow: 0 10px 30px rgba(0,0,0,.5); object-fit: contain; background: #fff; }
+  .vtitle { color: #fff; font-size: 20px; text-shadow: 0 2px 4px rgba(0,0,0,.5); text-align: center; }
+  .vbtns { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; }
+  .vbtns .btn { border-radius: 30px; padding: 6px 16px; }
+  .who, .date { white-space: nowrap; }
+  .foot { flex-wrap: wrap-reverse; justify-content: flex-start; }
+  .card .actions { margin-inline-start: auto; }
 </style>
 </head>
 <body>
@@ -362,7 +400,7 @@
       <button class="menu-btn" onclick="openBox('menuBox')" aria-label="مینو">☰</button>
     </div>
   </div>
-  <div class="sub" style="display:flex;justify-content:space-between;align-items:center">دوائیوں کا مکمل ریکارڈ <span class="badge" id="homeVersionBadge">MS1610FR007</span></div>
+  <div class="sub" style="display:flex;justify-content:space-between;align-items:center">دوائیوں کا مکمل ریکارڈ <span class="badge" id="homeVersionBadge">MS1610FR008</span></div>
   <div class="search">
     <span>🔍</span>
     <input id="q" type="search" dir="auto" placeholder="دوائی، کمپنی، نام، بیماری یا تاریخ لکھیں…" autocomplete="off" oninput="render()">
@@ -429,12 +467,34 @@
     <label>نوٹ (خوراک وغیرہ)</label>
     <input class="field" id="fNote" dir="auto" placeholder="مثلاً دن میں دو بار کھانے کے بعد">
 
+    <label>دوائی کی تصویر <span class="hint">(بوتل، پتہ یا ڈبہ)</span></label>
+    <div class="fphoto">
+      <div class="fpbox" id="fPhotoBox" onclick="$('photoFile').click()"><span>📷<br>تصویر لگائیں</span></div>
+      <div class="fpbtns">
+        <button type="button" class="btn edit" onclick="$('photoFile').click()">📷 تصویر لیں / چنیں</button>
+        <button type="button" class="btn del" id="fPhotoDel" onclick="removeFormPhoto()" hidden>🗑️ تصویر ہٹائیں</button>
+      </div>
+    </div>
+    <input type="file" id="photoFile" accept="image/*" style="display:none" onchange="onPhotoPicked(this)">
+
     <div class="row">
       <button class="btn save" onclick="saveMed()">✔ محفوظ کریں</button>
       <button class="btn cancel" onclick="closeBox('formBox')">واپس</button>
     </div>
   </div>
 </div>
+
+<!-- تصویر بڑی -->
+<div class="viewer" id="viewer" onclick="if(event.target===this||event.target.id==='viewImg')closeViewer()">
+  <img id="viewImg" alt="">
+  <div class="vtitle" id="viewTitle" dir="auto"></div>
+  <div class="vbtns">
+    <button class="btn edit" onclick="changeViewerPhoto()">📷 تصویر بدلیں</button>
+    <button class="btn del" onclick="deleteViewerPhoto()">🗑️ ہٹائیں</button>
+    <button class="btn cancel" onclick="closeViewer()">✕ بند</button>
+  </div>
+</div>
+<input type="file" id="viewFile" accept="image/*" style="display:none" onchange="onViewerPhoto(this)">
 
 <!-- اسکینر -->
 <input type="file" id="camFile" accept="image/*" capture="environment" style="display:none" onchange="onScanImage(this)">
@@ -488,7 +548,7 @@
     <input type="file" id="restoreFile" accept=".json,application/json" style="display:none" onchange="restore(this)">
     <input type="file" id="recvFile" accept=".json,application/json" style="display:none" onchange="receiveFile(this)">
     <button id="btnDriveOff" hidden>🔌 ڈرائیو سے الگ کریں</button>
-    <p class="hint" style="text-align:center">ورژن <span class="num">MS1610FR007</span> — ڈیٹا اسی فون میں محفوظ ہے، وقتاً فوقتاً بیک اپ بنا لیں</p>
+    <p class="hint" style="text-align:center">ورژن <span class="num">MS1610FR008</span> — ڈیٹا اسی فون میں محفوظ ہے، وقتاً فوقتاً بیک اپ بنا لیں</p>
   </div>
 </div>
 
@@ -505,7 +565,7 @@
 <div class="toast" id="toast"></div>
 
 <script>
-const APP_VERSION = 'MS1610FR007';
+const APP_VERSION = 'MS1610FR008';
 const KEY = 'medicineShelf.v1';
 const KEY_BAK = 'medicineShelf.v1.bak';
 const OCR_SRC = 'https://cdn.jsdelivr.net/npm/tesseract.js@5.1.1/dist/tesseract.min.js';
@@ -649,6 +709,7 @@ function render() {
   }
   box.innerHTML = list.map(m => `
     <div class="card ${selected.has(m.id) ? 'sel' : ''}" ${selMode ? `onclick="toggleOne('${m.id}')"` : ''}>
+     <div class="cmain">
       <div class="row1">
         ${selMode ? `<div class="check">${selected.has(m.id) ? '✓' : ''}</div>` : ''}
         <div class="nbox">
@@ -667,7 +728,12 @@ function render() {
           <button class="ibtn del" onclick="delMed('${m.id}')" aria-label="حذف">🗑️</button>
         </div>`}
       </div>
+     </div>
+     <div class="cphoto ${m.photo ? 'has' : ''}" data-photo="${m.photo || ''}" ${selMode ? '' : `onclick="event.stopPropagation();cardPhoto('${m.id}')"`}>
+       ${m.photo ? '<span class="pload">⏳</span>' : '<span class="padd">📷<br>تصویر</span>'}
+     </div>
     </div>`).join('');
+  fillPhotos();
   updateSelBar();
 }
 function clearSearch() { $('q').value = ''; render(); $('q').focus(); }
@@ -688,15 +754,24 @@ function openForm(id) {
   $('fDate').value = m.date || (id ? '' : today());
   $('fUses').value = m.uses || '';
   $('fNote').value = m.note || '';
+  formPhoto = { id: m.photo || null, blob: null, removed: false };
+  showFormPhoto();
   const names = Object.keys(people()).filter(Boolean);
   $('whoChips').innerHTML = names.map(n => `<button type="button" data-n="${esc(n)}" onclick="$('fWho').value=this.dataset.n">${esc(n)}</button>`).join('');
   openBox('formBox');
 }
 
-function saveMed() {
+async function saveMed() {
   const name = $('fName').value.trim();
   if (!name) { toast('دوائی کا نام لکھیں'); return; }
   const priceVal = $('fPrice').value.trim();
+  // تصویر
+  let photo = editId ? (meds.find(x => x.id === editId) || {}).photo || '' : '';
+  if (formPhoto.blob) {
+    const pid = 'p' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+    try { await Photos.put(pid, formPhoto.blob); if (photo) Photos.del(photo); photo = pid; }
+    catch (e) { toast('تصویر محفوظ نہیں ہو سکی'); }
+  } else if (formPhoto.removed && photo) { Photos.del(photo); photo = ''; }
   const data = {
     name,
     company: $('fCompany').value.trim(),
@@ -705,6 +780,7 @@ function saveMed() {
     date: $('fDate').value,
     uses: $('fUses').value.trim(),
     note: $('fNote').value.trim(),
+    photo,
     updated: Date.now()
   };
   if (editId) {
@@ -722,8 +798,122 @@ function newId() { return 'm' + Date.now().toString(36) + Math.random().toString
 function delMed(id) {
   const m = meds.find(x => x.id === id);
   if (!m || !confirm(`"${m.name}" کو حذف کریں؟`)) return;
+  if (m.photo) Photos.del(m.photo);
   meds = meds.filter(x => x.id !== id);
   persist(); render(); toast('حذف ہو گئی');
+}
+
+
+// ---------- دوائی کی تصویریں (فون کے اندر IndexedDB میں) ----------
+const Photos = (() => {
+  let dbp = null;
+  const open = () => dbp || (dbp = new Promise((res, rej) => {
+    const r = indexedDB.open('medicineShelfPhotos', 1);
+    r.onupgradeneeded = () => r.result.createObjectStore('photos');
+    r.onsuccess = () => res(r.result); r.onerror = () => { dbp = null; rej(r.error); };
+  }));
+  const tx = async (mode, fn) => {
+    const db = await open();
+    return new Promise((res, rej) => {
+      const t = db.transaction('photos', mode), st = t.objectStore('photos');
+      const r = fn(st);
+      t.oncomplete = () => res(r && r.result); t.onerror = () => rej(t.error);
+    });
+  };
+  const urls = {};
+  return {
+    get: id => tx('readonly', st => st.get(id)),
+    put: (id, blob) => { delete urls[id]; return tx('readwrite', st => st.put(blob, id)); },
+    del: id => { if (urls[id]) { URL.revokeObjectURL(urls[id]); delete urls[id]; } return tx('readwrite', st => st.delete(id)).catch(() => {}); },
+    has: async id => !!(await tx('readonly', st => st.count(id))),
+    url: async id => {
+      if (urls[id]) return urls[id];
+      const b = await tx('readonly', st => st.get(id));
+      return b ? (urls[id] = URL.createObjectURL(b)) : null;
+    }
+  };
+})();
+
+// تصویر چھوٹی کر کے (زیادہ سے زیادہ 1000px) محفوظ کرنا
+function compressPhoto(file) {
+  return new Promise((res, rej) => {
+    const img = new Image();
+    img.onload = () => {
+      const k = Math.min(1, 1000 / Math.max(img.width, img.height));
+      const c = document.createElement('canvas');
+      c.width = Math.round(img.width * k); c.height = Math.round(img.height * k);
+      c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
+      URL.revokeObjectURL(img.src);
+      c.toBlob(b => b ? res(b) : rej(), 'image/jpeg', 0.82);
+    };
+    img.onerror = rej;
+    img.src = URL.createObjectURL(file);
+  });
+}
+
+async function fillPhotos() {
+  for (const el of document.querySelectorAll('.cphoto.has')) {
+    const id = el.dataset.photo;
+    try {
+      const u = await Photos.url(id);
+      el.innerHTML = u ? `<img src="${u}" alt="">` : '<span class="padd">☁️<br>تصویر</span>';
+    } catch (e) { el.innerHTML = '<span class="padd">📷</span>'; }
+  }
+}
+
+// فارم میں تصویر
+let formPhoto = { id: null, blob: null, removed: false };
+let formPhotoUrl = null;
+async function showFormPhoto() {
+  const box = $('fPhotoBox');
+  if (formPhotoUrl) { URL.revokeObjectURL(formPhotoUrl); formPhotoUrl = null; }
+  let u = null;
+  if (formPhoto.blob) u = formPhotoUrl = URL.createObjectURL(formPhoto.blob);
+  else if (formPhoto.id && !formPhoto.removed) u = await Photos.url(formPhoto.id).catch(() => null);
+  box.innerHTML = u ? `<img src="${u}" alt="">` : '<span>📷<br>تصویر لگائیں</span>';
+  box.classList.toggle('has', !!u);
+  $('fPhotoDel').hidden = !u;
+}
+async function onPhotoPicked(input) {
+  const f = input.files[0]; input.value = '';
+  if (!f) return;
+  try { formPhoto.blob = await compressPhoto(f); formPhoto.removed = false; showFormPhoto(); }
+  catch (e) { toast('تصویر نہیں کھل سکی'); }
+}
+function removeFormPhoto() { formPhoto.blob = null; formPhoto.removed = true; showFormPhoto(); }
+
+// کارڈ کی تصویر: ہو تو بڑی دکھائیں، نہ ہو تو نئی لگائیں
+let viewMedId = null;
+async function cardPhoto(id) {
+  const m = meds.find(x => x.id === id); if (!m) return;
+  viewMedId = id;
+  if (!m.photo) { $('viewFile').click(); return; }
+  const u = await Photos.url(m.photo).catch(() => null);
+  if (!u) { toast('تصویر اس فون میں نہیں — ڈرائیو سے واپس لائیں'); return; }
+  $('viewImg').src = u;
+  $('viewTitle').textContent = m.name + (m.company ? ' — ' + m.company : '');
+  $('viewer').classList.add('show');
+}
+function closeViewer() { $('viewer').classList.remove('show'); }
+function changeViewerPhoto() { $('viewFile').click(); }
+async function onViewerPhoto(input) {
+  const f = input.files[0]; input.value = '';
+  const m = meds.find(x => x.id === viewMedId);
+  if (!f || !m) return;
+  try {
+    const blob = await compressPhoto(f);
+    const pid = 'p' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+    await Photos.put(pid, blob);
+    if (m.photo) Photos.del(m.photo);
+    m.photo = pid; m.updated = Date.now();
+    persist(); render(); closeViewer(); toast('تصویر لگ گئی ✔');
+  } catch (e) { toast('تصویر محفوظ نہیں ہو سکی'); }
+}
+function deleteViewerPhoto() {
+  const m = meds.find(x => x.id === viewMedId);
+  if (!m || !confirm('یہ تصویر ہٹا دیں؟')) return;
+  Photos.del(m.photo); m.photo = ''; m.updated = Date.now();
+  persist(); render(); closeViewer(); toast('تصویر ہٹا دی');
 }
 
 // ---------- اسکینر (تصویر سے لکھائی پڑھنا) ----------
@@ -1003,7 +1193,9 @@ window.MS_HOST = {
   version: APP_VERSION,
   snapshot: () => meds,
   replace: arr => { meds = arr.filter(m => m && m.name).map(m => ({ ...m, id: m.id || newId() })); persist(); render(); },
-  toast, openBox, closeBox
+  toast, openBox, closeBox, Photos,
+  photoIds: () => meds.map(m => m.photo).filter(Boolean),
+  refresh: () => render()
 };
 
 load(); render(); checkIncoming();
