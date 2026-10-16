@@ -120,6 +120,46 @@
     })).json();
   }
 
+  // ---------- تصویریں: بیک اپ فولڈر کے اندر «photos» فولڈر، ہر تصویر ایک بار ----------
+  async function photoFolder() {
+    const parent = await ensureFolder();
+    if (meta.photoFolder && meta.photoParent === parent) return meta.photoFolder;
+    const q = encodeURIComponent(`name='photos' and '${parent}' in parents and mimeType='application/vnd.google-apps.folder' and trashed=false`);
+    let id = (await (await api(`${DRIVE}?q=${q}&fields=files(id)`)).json()).files?.[0]?.id;
+    if (!id) id = (await (await api(DRIVE + '?fields=id', { method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name: 'photos', mimeType: 'application/vnd.google-apps.folder', parents: [parent] }) })).json()).id;
+    meta.photoFolder = id; meta.photoParent = parent; saveMeta(); return id;
+  }
+  async function syncPhotos() {
+    const H = host(); meta.photoUp = meta.photoUp || {};
+    const todo = H.photoIds().filter(id => !meta.photoUp[id]);
+    if (!todo.length) return;
+    const fid = await photoFolder();
+    for (const id of todo) {
+      const blob = await H.Photos.get(id); if (!blob) continue;
+      const bd = 'msimg' + Date.now();
+      const body = new Blob([`--${bd}\r\nContent-Type: application/json; charset=UTF-8\r\n\r\n${JSON.stringify({ name: `photo-${id}.jpg`, parents: [fid], appProperties: { app: 'medicine-shelf-photo', id } })}\r\n--${bd}\r\nContent-Type: image/jpeg\r\n\r\n`, blob, `\r\n--${bd}--`]);
+      const r = await (await api(`${UPLOAD}?uploadType=multipart&fields=id`, { method: 'POST', headers: { 'Content-Type': `multipart/related; boundary=${bd}` }, body })).json();
+      meta.photoUp[id] = r.id; saveMeta();
+    }
+  }
+  async function fetchPhotos() {
+    const H = host(); meta.photoUp = meta.photoUp || {};
+    const miss = [];
+    for (const id of H.photoIds()) if (!(await H.Photos.has(id))) miss.push(id);
+    if (!miss.length) return 0;
+    const fid = await photoFolder(); let n = 0;
+    for (const id of miss) {
+      try {
+        const q = encodeURIComponent(`name='photo-${id}.jpg' and '${fid}' in parents and trashed=false`);
+        const f = (await (await api(`${DRIVE}?q=${q}&fields=files(id)`)).json()).files?.[0]; if (!f) continue;
+        const blob = await (await api(`${DRIVE}/${f.id}?alt=media`)).blob();
+        await H.Photos.put(id, new Blob([blob], { type: 'image/jpeg' })); meta.photoUp[id] = f.id; n++;
+      } catch (e) { if (e.message === 'expired') throw e; }
+    }
+    saveMeta(); return n;
+  }
+
   // ---------- بیک اپ ----------
   async function backup(interactive) {
     if (busy) return false;
@@ -148,6 +188,7 @@
       }
       meta.lastDrive = new Date().toISOString(); meta.lastCount = meds.length; meta.pending = false;
       saveMeta();
+      try { await syncPhotos(); } catch (e) { console.warn('photo sync', e); }
       return meds.length;
     } catch (e) {
       handleErr(e, interactive);
@@ -208,7 +249,10 @@
       host().replace(arr);
       meta.lastDrive = new Date().toISOString(); meta.pending = false; meta.lastCount = arr.length; saveMeta();
       host().closeBox('driveBox'); host().closeBox('menuBox'); render();
-      toast(`${arr.length} دوائیاں واپس آ گئیں ✔`);
+      toast(`${arr.length} دوائیاں واپس آ گئیں ✔ تصویریں آ رہی ہیں…`);
+      let np = 0; try { np = await fetchPhotos(); } catch (e) { console.warn(e); }
+      host().refresh();
+      if (np) toast(`${arr.length} دوائیاں اور ${np} تصویریں واپس آ گئیں ✔`);
     } catch (e) {
       if (e.message === 'bad') toast('یہ فائل درست بیک اپ نہیں'); else handleErr(e, true);
     }
