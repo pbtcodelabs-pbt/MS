@@ -1,5 +1,5 @@
-const CACHE_NAME = 'medicine-shelf-MS1610FR003';
-const FILES = ['./', './index.html', './manifest.json', './icon.svg',
+const CACHE_NAME = 'medicine-shelf-MS1610FR004';
+const FILES = ['./', './index.html', './manifest.json', './icon.svg', './drive.js',
   './fonts/JameelNooriNastaleeq.woff2', './fonts/JameelNooriNastaleeqKasheeda.woff2'];
 
 self.addEventListener('install', e => {
