@@ -362,7 +362,7 @@
       <button class="menu-btn" onclick="openBox('menuBox')" aria-label="مینو">☰</button>
     </div>
   </div>
-  <div class="sub" style="display:flex;justify-content:space-between;align-items:center">دوائیوں کا مکمل ریکارڈ <span class="badge" id="homeVersionBadge">MS1610FR006</span></div>
+  <div class="sub" style="display:flex;justify-content:space-between;align-items:center">دوائیوں کا مکمل ریکارڈ <span class="badge" id="homeVersionBadge">MS1610FR007</span></div>
   <div class="search">
     <span>🔍</span>
     <input id="q" type="search" dir="auto" placeholder="دوائی، کمپنی، نام، بیماری یا تاریخ لکھیں…" autocomplete="off" oninput="render()">
@@ -488,7 +488,7 @@
     <input type="file" id="restoreFile" accept=".json,application/json" style="display:none" onchange="restore(this)">
     <input type="file" id="recvFile" accept=".json,application/json" style="display:none" onchange="receiveFile(this)">
     <button id="btnDriveOff" hidden>🔌 ڈرائیو سے الگ کریں</button>
-    <p class="hint" style="text-align:center">ورژن <span class="num">MS1610FR006</span> — ڈیٹا اسی فون میں محفوظ ہے، وقتاً فوقتاً بیک اپ بنا لیں</p>
+    <p class="hint" style="text-align:center">ورژن <span class="num">MS1610FR007</span> — ڈیٹا اسی فون میں محفوظ ہے، وقتاً فوقتاً بیک اپ بنا لیں</p>
   </div>
 </div>
 
@@ -505,7 +505,7 @@
 <div class="toast" id="toast"></div>
 
 <script>
-const APP_VERSION = 'MS1610FR006';
+const APP_VERSION = 'MS1610FR007';
 const KEY = 'medicineShelf.v1';
 const KEY_BAK = 'medicineShelf.v1.bak';
 const OCR_SRC = 'https://cdn.jsdelivr.net/npm/tesseract.js@5.1.1/dist/tesseract.min.js';
@@ -546,12 +546,26 @@ function norm(s) {
 function esc(s) {
   return String(s || '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 }
+// تلاش کے الفاظ: فاصلے یا کومے سے الگ
+function qWords(raw) { return String(raw || '').split(/[\s,،]+/).filter(Boolean); }
+// تلاش والے سب حصے پیلے کرنا (پورا جملہ، ورنہ ہر لفظ الگ)
 function hl(text, q) {
   const t = String(text || '');
   if (!q) return esc(t);
-  const i = t.toLowerCase().indexOf(q.toLowerCase());
-  if (i < 0) return esc(t);
-  return esc(t.slice(0, i)) + '<mark>' + esc(t.slice(i, i + q.length)) + '</mark>' + esc(t.slice(i + q.length));
+  const low = t.toLowerCase();
+  const words = [q, ...qWords(q)].map(w => w.toLowerCase());
+  const marks = new Array(t.length).fill(false);
+  for (const w of words) {
+    if (!w) continue;
+    let i = low.indexOf(w);
+    while (i >= 0) { for (let k = i; k < i + w.length; k++) marks[k] = true; i = low.indexOf(w, i + w.length); }
+  }
+  let out = '', on = false;
+  for (let k = 0; k < t.length; k++) {
+    if (marks[k] !== on) { out += marks[k] ? '<mark>' : '</mark>'; on = marks[k]; }
+    out += esc(t[k]);
+  }
+  return out + (on ? '</mark>' : '');
 }
 function isLatin(s) { return /^[\x00-\x7F\s]*$/.test(String(s || '')); }
 function fmtPrice(p) {
@@ -575,6 +589,7 @@ function people() {
 function visibleList() {
   const raw = $('q').value.trim();
   const q = norm(raw);
+  const words = qWords(raw).map(norm).filter(Boolean);
   let list = meds.filter(m => !curCat || (curCat === '-' ? !m.who : m.who === curCat));
   if (q) {
     list = list.map(m => {
@@ -586,6 +601,11 @@ function visibleList() {
       else if (norm(m.uses).includes(q) || norm(m.note).includes(q)) score = 3;
       else if (norm(m.who).includes(q)) score = 4;
       else if (norm(fmtDate(m.date)).includes(q) || norm(m.date).includes(q)) score = 5;
+      else if (words.length > 1) {
+        // کئی الفاظ: کسی بھی ترتیب میں، ہر لفظ کسی نہ کسی خانے میں ہو
+        const hay = [m.name, m.company, m.uses, m.note, m.who, fmtDate(m.date)].map(norm).join('|');
+        if (words.every(w => hay.includes(w))) score = 6;
+      }
       return { m, score };
     }).filter(x => x.score >= 0)
       .sort((a, b) => a.score - b.score || a.m.name.localeCompare(b.m.name))
