@@ -6,6 +6,7 @@
 (() => {
   'use strict';
 
+  const DEFAULT_ACCOUNT = 'pbtcodelabs@gmail.com';   // جوڑتے وقت یہی اکاؤنٹ پہلے سے چنا ہوا آئے
   const CLIENT_ID = '954131537356-2be2rne30mje71l9qibosblvj3j0eqoj.apps.googleusercontent.com';
   const SCOPE = 'https://www.googleapis.com/auth/drive.file openid email';
   const FOLDER_NAME = 'Medicine Shelf Backup';
@@ -58,8 +59,7 @@
         res(token);
       };
       tokenClient.error_callback = e => rej(new Error(e?.type || 'popup'));
-      const opts = { prompt: meta.email ? '' : 'consent' };
-      if (meta.email) opts.hint = meta.email;
+      const opts = { prompt: meta.email ? '' : 'consent', hint: meta.email || DEFAULT_ACCOUNT };
       tokenClient.requestAccessToken(opts);
     }));
   }
