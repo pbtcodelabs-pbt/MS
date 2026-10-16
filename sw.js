@@ -1,4 +1,4 @@
-const CACHE_NAME = 'medicine-shelf-MS1610FR002';
+const CACHE_NAME = 'medicine-shelf-MS1610FR003';
 const FILES = ['./', './index.html', './manifest.json', './icon.svg',
   './fonts/JameelNooriNastaleeq.woff2', './fonts/JameelNooriNastaleeqKasheeda.woff2'];
 
