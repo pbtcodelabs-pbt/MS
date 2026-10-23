@@ -1,4 +1,4 @@
-const CACHE_NAME = 'medicine-shelf-MS1710SA009';
+const CACHE_NAME = 'medicine-shelf-MS2310FR010';
 const FILES = ['./', './index.html', './manifest.json', './icon.svg', './drive.js', './rx.js',
   './fonts/JameelNooriNastaleeq.woff2', './fonts/JameelNooriNastaleeqKasheeda.woff2'];
 
@@ -9,7 +9,7 @@ self.addEventListener('install', e => {
 
 self.addEventListener('activate', e => {
   e.waitUntil(caches.keys().then(keys =>
-    Promise.all(keys.filter(k => k !== CACHE_NAME).map(k => caches.delete(k)))
+    Promise.all(keys.filter(k => k.startsWith('medicine-shelf-') && k !== CACHE_NAME) /* 🛡️ صرف اپنے پرانے کیش */.map(k => caches.delete(k)))
   ).then(() => self.clients.claim()));
 });
 
