@@ -36,3 +36,4 @@
 | MS2310FR011 | 23 اکتوبر 2026 | PNG آئیکن (192/512 + maskable) تاکہ کروم پوری ایپ کی طرح انسٹال کرے، صرف شارٹ کٹ نہیں |
 
 - **ایک ہی ویب سائٹ، کئی ایپس (مستقل اصول):** `pbtcodelabs-pbt.github.io` پر کئی ایپس چلتی ہیں۔ `sw.js` اور «تازہ کریں» بٹن صرف **اسی ایپ** کے کیش/سروس ورکر مٹائیں (`getRegistration()`، `getRegistrations()` نہیں)؛ `localStorage.clear()` کبھی نہیں — صرف اپنی کلیدیں ہٹائیں۔
+- **🆘 PBT Help Desk (MS0211MO012):** `index.html` کے آخر میں `https://pbtcodelabs-pbt.github.io/help/widget.js` (`data-float="1"`) — بائیں کنارے پر گول سرخ «SOS / Help» پٹی (انگلی سے اوپر نیچے سرکتی ہے)، ایپ کے اندر پاپ اپ میں مسئلہ / مشورہ۔ ورژن بدلیں تو `data-ver` بھی۔
