@@ -462,11 +462,12 @@
   <div class="top">
     <h1>💊 میڈیسن شیلف</h1>
     <div style="display:flex;gap:8px;align-items:center">
+      <button class="menu-btn" onclick="openHelpDesk()" title="PBT Help Desk">🆘</button>
       <button class="menu-btn dchip warn" id="driveChip" onclick="openBox('menuBox')" aria-label="ڈرائیو">⚠️</button>
       <button class="menu-btn" onclick="openBox('menuBox')" aria-label="مینو">☰</button>
     </div>
   </div>
-  <div class="sub" style="display:flex;justify-content:space-between;align-items:center">دوائیوں کا مکمل ریکارڈ <span class="badge" id="homeVersionBadge">MS0211MO012</span></div>
+  <div class="sub" style="display:flex;justify-content:space-between;align-items:center">دوائیوں کا مکمل ریکارڈ <span class="badge" id="homeVersionBadge">MS0211MO013</span></div>
   <div class="search">
     <span>🔍</span>
     <input id="q" type="search" dir="auto" placeholder="دوائی، کمپنی، نام، بیماری یا تاریخ لکھیں…" autocomplete="off" oninput="render()">
@@ -618,7 +619,7 @@
     <input type="file" id="restoreFile" accept=".json,application/json" style="display:none" onchange="restore(this)">
     <input type="file" id="recvFile" accept=".json,application/json" style="display:none" onchange="receiveFile(this)">
     <button id="btnDriveOff" hidden>🔌 ڈرائیو سے الگ کریں</button>
-    <p class="hint" style="text-align:center">ورژن <span class="num">MS0211MO012</span> — ڈیٹا اسی فون میں محفوظ ہے، وقتاً فوقتاً بیک اپ بنا لیں</p>
+    <p class="hint" style="text-align:center">ورژن <span class="num">MS0211MO013</span> — ڈیٹا اسی فون میں محفوظ ہے، وقتاً فوقتاً بیک اپ بنا لیں</p>
   </div>
 </div>
 
@@ -635,7 +636,7 @@
 <div class="toast" id="toast"></div>
 
 <script>
-const APP_VERSION = 'MS0211MO012';
+const APP_VERSION = 'MS0211MO013';
 const KEY = 'medicineShelf.v1';
 const KEY_BAK = 'medicineShelf.v1.bak';
 const OCR_SRC = 'https://cdn.jsdelivr.net/npm/tesseract.js@5.1.1/dist/tesseract.min.js';
@@ -1319,6 +1320,6 @@ if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catc
 </script>
 <script src="rx.js"></script>
 <script src="drive.js"></script>
-<script src="https://pbtcodelabs-pbt.github.io/help/widget.js" data-app="MS" data-ver="MS0211MO012" data-float="1" defer></script> <!-- 🆘 MS0211MO012: PBT Help Desk -->
+<script src="https://pbtcodelabs-pbt.github.io/help/widget.js" data-app="MS" data-ver="MS0211MO013" defer></script> <!-- 🆘 MS0211MO013: PBT Help Desk -->
 </body>
 </html>
