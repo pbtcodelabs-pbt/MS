@@ -462,12 +462,12 @@
   <div class="top">
     <h1>💊 میڈیسن شیلف</h1>
     <div style="display:flex;gap:8px;align-items:center">
-      <button class="menu-btn" onclick="openHelpDesk()" title="PBT Help Desk">🆘</button>
+      <button class="menu-btn" onclick="openHelpDesk()" title="PBT Help Desk"><span class="pbthd-sos" style="display:inline-flex;align-items:center;gap:4px;background:linear-gradient(#fde047,#facc15);color:#111;border-radius:999px;padding:2px 9px;font:800 12px/1.35 Arial,sans-serif;box-shadow:0 2px 0 #ca8a04;white-space:nowrap;vertical-align:middle;direction:ltr"><b style="background:#111;color:#facc15;border-radius:50%;width:15px;height:15px;display:inline-flex;align-items:center;justify-content:center;font-size:11px">?</b>Help Desk</span></button>
       <button class="menu-btn dchip warn" id="driveChip" onclick="openBox('menuBox')" aria-label="ڈرائیو">⚠️</button>
       <button class="menu-btn" onclick="openBox('menuBox')" aria-label="مینو">☰</button>
     </div>
   </div>
-  <div class="sub" style="display:flex;justify-content:space-between;align-items:center">دوائیوں کا مکمل ریکارڈ <span class="badge" id="homeVersionBadge">MS0211MO013</span></div>
+  <div class="sub" style="display:flex;justify-content:space-between;align-items:center">دوائیوں کا مکمل ریکارڈ <span class="badge" id="homeVersionBadge">MS0511TH014</span></div>
   <div class="search">
     <span>🔍</span>
     <input id="q" type="search" dir="auto" placeholder="دوائی، کمپنی، نام، بیماری یا تاریخ لکھیں…" autocomplete="off" oninput="render()">
@@ -619,7 +619,7 @@
     <input type="file" id="restoreFile" accept=".json,application/json" style="display:none" onchange="restore(this)">
     <input type="file" id="recvFile" accept=".json,application/json" style="display:none" onchange="receiveFile(this)">
     <button id="btnDriveOff" hidden>🔌 ڈرائیو سے الگ کریں</button>
-    <p class="hint" style="text-align:center">ورژن <span class="num">MS0211MO013</span> — ڈیٹا اسی فون میں محفوظ ہے، وقتاً فوقتاً بیک اپ بنا لیں</p>
+    <p class="hint" style="text-align:center">ورژن <span class="num">MS0511TH014</span> — ڈیٹا اسی فون میں محفوظ ہے، وقتاً فوقتاً بیک اپ بنا لیں</p>
   </div>
 </div>
 
@@ -636,7 +636,7 @@
 <div class="toast" id="toast"></div>
 
 <script>
-const APP_VERSION = 'MS0211MO013';
+const APP_VERSION = 'MS0511TH014';
 const KEY = 'medicineShelf.v1';
 const KEY_BAK = 'medicineShelf.v1.bak';
 const OCR_SRC = 'https://cdn.jsdelivr.net/npm/tesseract.js@5.1.1/dist/tesseract.min.js';
@@ -1320,6 +1320,6 @@ if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catc
 </script>
 <script src="rx.js"></script>
 <script src="drive.js"></script>
-<script src="https://pbtcodelabs-pbt.github.io/help/widget.js" data-app="MS" data-ver="MS0211MO013" defer></script> <!-- 🆘 MS0211MO013: PBT Help Desk -->
+<script src="https://pbtcodelabs-pbt.github.io/help/widget.js" data-app="MS" data-ver="MS0511TH014" defer></script> <!-- 🆘 MS0511TH014: PBT Help Desk -->
 </body>
 </html>
